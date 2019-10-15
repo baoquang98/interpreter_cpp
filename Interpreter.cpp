@@ -57,24 +57,23 @@ void Interpreter::pushc() {
 
 void Interpreter::pushs() {
     //TODO: FIXME
-    uint8_t bytes[2] = {mem[pc+1], mem[pc+2]};
-    short s = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort(); //FIXME
+    short s = short(mem[pc+1] << 8  | mem[pc+2]);//FIXME
     rstack[++sp] = s;
     pc += 3;
 }
 
 void Interpreter::pushi() {
     //TODO: FIXME
-    byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
-    int i = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt(); //FIXME
+    //byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
+    int i = int(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]); //FIXME
     rstack[++sp] = i;
     pc += 5;
 }
 
 void Interpreter::pushf() {
     //TODO: FIXME
-    byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
-    int f = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat(); //FIXME
+    //byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
+    float f = int(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]);
     rstack[++sp] = f;
     pc += 5;
 }
