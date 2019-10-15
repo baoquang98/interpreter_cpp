@@ -9,7 +9,12 @@
 #include "Interpreter.h"
 #include <array>
 
-Interpreter::Interpreter() {}
+Interpreter::Interpreter(unsigned char* input) {
+    mem = input;
+    sp = -1;
+    fpsp = -1;
+    pc = 0;
+}
 Interpreter::~Interpreter() {}
 
 void Interpreter::cmpe() {
@@ -204,7 +209,7 @@ void Interpreter::halt() {
     //    default : //TODO: Need a default?
 }
 
-void Interpreter::run(uint8_t* mem) {
+void Interpreter::run() {
     int size = sizeof(mem)/sizeof(mem);
     for(int i = 0; i < size; i) {
         switch (mem[i]) {

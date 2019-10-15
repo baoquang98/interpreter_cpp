@@ -11,19 +11,21 @@
 
 #include <stdio.h>
 #include <cstdint>
+#include <vector>
+using namespace std;
 
 class Interpreter {
 private:
-    int* rstack; //TODO:type. I said int* but I don't know what it is
+    vector<int> rstack; //TODO:type. I said int* but I don't know what it is
     int sp; //Initially -1
-    int* fpstack; //TODO:type. I said int* but I don't know what it is
+    vector<int> fpstack; //TODO:type. I said int* but I don't know what it is
     int fpsp; //Initially -1
     int pc; //Initially 0
-    uint8_t* mem; //Work on intialization
+    unsigned char* mem; //Work on intialization. char is 8 bits
 public:
-    Interpreter();
+    Interpreter(unsigned char* input);
     ~Interpreter();
-    void run(uint8_t* mem);
+    void run();
     //Comparison Bytecodes
     void cmpe();
     void cmplt();
