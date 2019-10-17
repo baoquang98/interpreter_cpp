@@ -13,11 +13,11 @@ int main(int argc, char ** argv) {
         in_file.read ((char *) memblock, size);
         in_file.close();
     
-        /*cout << "the entire file content is in memory" << endl;
-        for (int i = 0; i < size; i++) {
+        /*for (int i = 0; i < size; i++) {
             cout << "Dec: " <<(int) memblock[i] << ", Hex: " << hex << (int) memblock[i] << dec << endl;
         }*/
-        Interpreter inter(memblock);
+        Interpreter * inter = new Interpreter(memblock, size); // temp solution for c++ being picky with array size
+        inter->run();
         delete[] memblock;
     } else cout << "Unable to open file";
 

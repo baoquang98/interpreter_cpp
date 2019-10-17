@@ -22,8 +22,9 @@ private:
     int fpsp; //Initially -1
     int pc; //Initially 0
     unsigned char* mem; //Work on intialization. char is 8 bits
+    int size;
 public:
-    Interpreter(unsigned char* input);
+    Interpreter(unsigned char* input, int mem_size);
     ~Interpreter();
     void run();
     //Comparison Bytecodes
