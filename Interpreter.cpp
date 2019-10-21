@@ -77,7 +77,7 @@ void Interpreter::pushc() {
 void Interpreter::pushs() {
     std::cout << "cmpe" <<std::endl;
     //TODO: FIXME
-    //short s = short(mem[pc+1] << 8  | mem[pc+2]);
+    short s = short(mem[pc+1] << 8  | mem[pc+2]);
     //rstack[++sp] = s;
     pc += 3;
 }
@@ -85,7 +85,7 @@ void Interpreter::pushs() {
 void Interpreter::pushi() {
     std::cout << "pushi" <<std::endl;
     //TODO: FIXME
-    //int i = int(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]);
+    int i = int(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]);
     //rstack[++sp] = i;
     pc += 5;
 }
@@ -94,32 +94,32 @@ void Interpreter::pushf() {
     std::cout << "pushf" <<std::endl;
     //TODO: FIXME
     //byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
-    //float f = float(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]);
+    float f = float(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]);
     //rstack[++sp] = f;
     pc += 5;
 }
 
 void Interpreter::pushvc() {
     std::cout << "pushvc" <<std::endl;
-    //rstack[sp] = rstack[rstack[sp]]; //TODO: sp++?
+    //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1]; //TODO: sp++?
     pc++;
 }
 
 void Interpreter::pushvs() {
     std::cout << "pushvs" <<std::endl;
-    //rstack[sp] = rstack[rstack[sp]];
+    //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
     pc++;
 }
 
 void Interpreter::pushvi() {
     std::cout << "pushvi" <<std::endl;
-    //rstack[sp] = rstack[rstack[sp]];
+    //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
     pc++;
 }
 
 void Interpreter::pushvf() {
     std::cout << "pushvf" <<std::endl;
-    //rstack[sp] = rstack[rstack[sp]];
+    //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
     pc++;
 }
 
@@ -131,7 +131,7 @@ void Interpreter::popm() {
 
 void Interpreter::popv() {
     std::cout << "popv" <<std::endl;
-   // rstack[rstack[sp]] = rstack[sp-1];
+   // rstack[fpstack[fpsp] + int(rstack[sp]) + 1] = rstack[sp-1];
     sp -= 2;
     pc++;
 }
@@ -246,6 +246,12 @@ void Interpreter::prints() {
 
 void Interpreter::printi() {
     std::cout << "printi" <<std::endl;
+    pc++;
+//    std::cout <<rstack[sp--]<< std::endl;
+}
+
+void Interpreter::printf() {
+    std::cout << "printf" <<std::endl;
     pc++;
 //    std::cout <<rstack[sp--]<< std::endl;
 }
@@ -370,14 +376,17 @@ void Interpreter::run() {
                 div();
                 break;
         //Special Op Codes
-            case 148://(148 || 10010100): //printc
+            case 144://(148 || 10010100): //printc
                 printc();
                 break;
-            case 149://(149 || 10010101): //prints
+            case 145://(149 || 10010101): //prints
                 prints();
                 break;
-            case 150://(150 || 10010110): //printi
+            case 146://(150 || 10010110): //printi
                 printi();
+                break;
+            case 147://(150 || 10010110): //printi
+                printf();
                 break;
             case 0://(0 || 00000000): //halt
                 halt();

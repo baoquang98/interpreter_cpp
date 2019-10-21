@@ -12,11 +12,12 @@
 #include <stdio.h>
 #include <cstdint>
 #include <vector>
+#include "Data.h"
 using namespace std;
 
 class Interpreter {
 private:
-    vector<int> rstack; //TODO:type. I said int* but I don't know what it is
+    vector<Data *> rstack; //TODO:type. I said int* but I don't know what it is
     int sp; //Initially -1
     vector<int> fpstack; //TODO:type. I said int* but I don't know what it is
     int fpsp; //Initially -1
