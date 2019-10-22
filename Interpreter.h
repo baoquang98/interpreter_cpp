@@ -17,17 +17,19 @@ using namespace std;
 
 class Interpreter {
 private:
-    vector<Data *> rstack; //TODO:type. I said int* but I don't know what it is
+    vector<Data *> rstack;
     int sp; //Initially -1
-    vector<int> fpstack; //TODO:type. I said int* but I don't know what it is
+    vector<int> fpstack;
     int fpsp; //Initially -1
     int pc; //Initially 0
-    unsigned char* mem; //Work on intialization. char is 8 bits
+    unsigned char* mem;
     int size;
+    bool halt_flag;
 public:
     Interpreter(unsigned char* input, int mem_size);
     ~Interpreter();
-    void run();
+    void run(); //Hopefully this will be our end run method
+    void run_demo(); //This is to read through and check the memory
     //Comparison Bytecodes
     void cmpe();
     void cmplt();

@@ -16,6 +16,7 @@ Interpreter::Interpreter(unsigned char* input, int mem_size) {
     fpsp = -1;
     pc = 0;
     size = mem_size;
+    halt_flag = false;
 }
 
 Interpreter::~Interpreter() {}
@@ -77,7 +78,10 @@ void Interpreter::pushc() {
 void Interpreter::pushs() {
     std::cout << "cmpe" <<std::endl;
     //TODO: FIXME
-    short s = short(mem[pc+1] << 8  | mem[pc+2]);
+    //short s = short(mem[pc+1] << 8  | mem[pc+2]);
+    //short var[2] = {mem[pc+1], mem[pc+2]};
+    //short s;
+    //memcpy(&s, &var, sizeof(s));
     //rstack[++sp] = s;
     pc += 3;
 }
@@ -272,9 +276,10 @@ void Interpreter::halt() {
         std::cout << rstack[i] << std::endl;
     }
     std::cout <<"Last instructions?"<< std::endl; */
+    halt_flag = true;
 }
 
-void Interpreter::run() {
+void Interpreter::run_demo() {
     for(int i = 0; i < size; i++) {
         std::cout << (int) mem[i] <<" ";
         switch (mem[i]) {
@@ -393,6 +398,129 @@ void Interpreter::run() {
                 break;
             default:
                 cout <<"Unknown inst, Hex: " << hex << (int) mem[i] << dec << endl;
+        }
+    }
+}
+void Interpreter::run() {
+    while(!halt_flag) {
+        switch(mem[pc]) {
+            case 132://(132 || 10000100)://cmpe
+                cmpe();
+                break;
+            case 136://(136 || 10001000)://cmplt
+                cmplt();
+                break;
+            case 140://(140 || 10001100)://cmpgt
+                cmpgt();
+                break;
+        //Control Flow Bytecodes
+            case 36://(36 || 00100100): //jmp
+                jmp();
+                break;
+            case 40://(40 || 00101000): //jmpc
+                jmpc();
+                break;
+            case 44://(44 || 00101100): //call
+                call();
+                break;
+            case 48://(48 || 00110000): //ret
+                ret();
+                break;
+        //Stack Manipulation Byte Codes
+            case 68://(68 || 01000100): //pushc
+                pushc();
+                break;
+            case 69://(69 || 01000101): //pushs
+                pushs();
+                break;
+            case 70://(70 || 01000110): //pushi
+                pushi();
+                break;
+            case 71://(71 || 01000111): //pushf
+                pushf();
+                break;
+            case 72://(72 || 01001000): //pushvc
+                pushvc();
+                break;
+            case 73://(73 || 01001001): //pushvs
+                pushvs();
+                break;
+            case 74://(74 || 01001010): //pushvi
+                pushvi();
+                break;
+            case 75://(75 || 01001011): //pushvf
+                pushvf();
+                break;
+            case 76://(76 || 01001100): //popm
+                popm();
+                break;
+            case 80://(80 || 01010000): //popv
+                popv();
+                break;
+            case 77://(77 || 01001101): //popa
+                popa();
+                break;
+            case 84://(84 || 01011000): //peekc
+                peekc();
+                break;
+            case 85://(85 || 01011001): //peeks
+                peeks();
+                break;
+            case 86://(86 || 01011010): //peeki
+                peeki();
+                break;
+            case 87://(87 || 01011011): //peekf
+                peekf();
+                break;
+            case 88://(88 || 01100000): //pokec
+                pokec();
+                break;
+            case 89://(89 || 01100001): //pokes
+                pokes();
+                break;
+            case 90://(90 || 01100010): //pokei
+                pokei();
+                break;
+            case 91://(91 || 01100011): //pokef
+                pokef();
+                break;
+            case 94://(94 || 01100100): //swp
+                swp();
+                break;
+        //Arithmetic Byte Codes
+            case 110://(100 || 01100100): //add
+                add();
+                break;
+            case 104://(104 || 01101000): //sub
+                sub();
+                break;
+            case 108://(108 || 01101100): //mul
+                mul();
+                break;
+            case 112://(112 || 01110000): //div
+                div();
+                break;
+        //Special Op Codes
+            case 144://(148 || 10010100): //printc
+                printc();
+                break;
+            case 145://(149 || 10010101): //prints
+                prints();
+                break;
+            case 146://(150 || 10010110): //printi
+                printi();
+                break;
+            case 147://(150 || 10010110): //printi
+                printf();
+                break;
+            case 0://(0 || 00000000): //halt
+                halt();
+                break;
+            default:
+                cout <<"Unknown inst, Hex: " << hex << (int) mem[pc] << dec << endl;
+                halt_flag = true;
+                cout <<"Kill execution" << endl;
+                return;
         }
     }
 }
