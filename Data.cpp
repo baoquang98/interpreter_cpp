@@ -2,41 +2,8 @@
 #include <array>
 #include <iostream>
 
-Data::Data(){}
+Data::Data(int input){int_data = input; type = INT_TYPE;}
+Data::Data(float input){float_data = input; type = FLOAT_TYPE;}
+Data::Data(char input){char_data = input; type = CHAR_TYPE;}
+Data::Data(short input){short_data = input; type = SHORT_TYPE;}
 Data::~Data(){}
-Int_Data::Int_Data(int input){
-    data = input;
-}
-int Int_Data::get_data(){
-    return (data);
-}
-
-void Int_Data::print_data(){
-    std::cout << "int "<< data << " ";
-}
-Int_Data::~Int_Data(){}
-
-Float_Data::Float_Data(float input){
-    data = input;
-}
-float Float_Data::get_data(){
-    return (data);
-}
-Float_Data::~Float_Data(){}
-
-void Float_Data::print_data(){
-    std::cout << "float " << data << " ";
-}
-
-
-Short_Data::Short_Data(short input){
-    data = input;
-}
-short Short_Data::get_data(){
-    return (data);
-}
-
-void Short_Data::print_data(){
-    std::cout <<"short " <<data << " ";
-}
-Short_Data::~Short_Data(){}

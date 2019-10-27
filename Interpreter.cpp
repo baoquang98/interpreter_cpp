@@ -23,7 +23,21 @@ Interpreter::~Interpreter() {}
 
 void Interpreter::cmpe() {
     std::cout << "cmpe" <<std::endl;
-    //rstack[sp-1] = rstack[sp-1] == rstack[sp];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp-1]->int_data = (rstack[sp-1]->int_data == rstack[sp]->int_data);
+            break;
+        case FLOAT_TYPE:
+            rstack[sp-1]->float_data = (rstack[sp-1]->float_data == rstack[sp]->float_data);
+            break;
+        case CHAR_TYPE:
+            rstack[sp-1]->char_data = (rstack[sp-1]->char_data == rstack[sp]->char_data);
+            break;
+        case SHORT_TYPE:
+            rstack[sp-1]->short_data = (rstack[sp-1]->short_data == rstack[sp]->short_data);
+            break;
+    }
+    rstack.pop_back();
     sp--;
     pc++;
 }
@@ -31,6 +45,21 @@ void Interpreter::cmpe() {
 void Interpreter::cmplt() {
     std::cout << "cmplt" <<std::endl;
     //rstack[sp-1] = rstack[sp-1] < rstack[sp];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp-1]->int_data = (rstack[sp-1]->int_data < rstack[sp]->int_data);
+            break;
+        case FLOAT_TYPE:
+            rstack[sp-1]->float_data = (rstack[sp-1]->float_data < rstack[sp]->float_data);
+            break;
+        case CHAR_TYPE:
+            rstack[sp-1]->char_data = (rstack[sp-1]->char_data < rstack[sp]->char_data);
+            break;
+        case SHORT_TYPE:
+            rstack[sp-1]->short_data = (rstack[sp-1]->short_data < rstack[sp]->short_data);
+            break;
+    }
+    rstack.pop_back();
     sp--;
     pc++;
 }
@@ -38,6 +67,21 @@ void Interpreter::cmplt() {
 void Interpreter::cmpgt() {
     std::cout << "cmpgt" <<std::endl;
     //rstack[sp-1] = rstack[sp-1] > rstack[sp];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp-1]->int_data = (rstack[sp-1]->int_data > rstack[sp]->int_data);
+            break;
+        case FLOAT_TYPE:
+            rstack[sp-1]->float_data = (rstack[sp-1]->float_data > rstack[sp]->float_data);
+            break;
+        case CHAR_TYPE:
+            rstack[sp-1]->char_data = (rstack[sp-1]->char_data > rstack[sp]->char_data);
+            break;
+        case SHORT_TYPE:
+            rstack[sp-1]->short_data = (rstack[sp-1]->short_data > rstack[sp]->short_data);
+            break;
+    }
+    rstack.pop_back();
     sp--;
     pc++;
 }
@@ -72,25 +116,32 @@ void Interpreter::ret() {
 void Interpreter::pushc() {
     std::cout << "pushc" <<std::endl;
     //rstack[++sp] = mem[pc+1];
+    char input = (char) mem[pc+1];
+    rstack.push_back(new Data(input));
+    sp++;
     pc += 2;
 }
 
 void Interpreter::pushs() {
     std::cout << "cmpe" <<std::endl;
     //TODO: FIXME
-    //short s = short(mem[pc+1] << 8  | mem[pc+2]);
+    short s = short(mem[pc+2] << 8  | mem[pc+1]);
     //short var[2] = {mem[pc+1], mem[pc+2]};
     //short s;
     //memcpy(&s, &var, sizeof(s));
     //rstack[++sp] = s;
+    rstack.push_back(new Data(s));
+    sp++;
     pc += 3;
 }
 
 void Interpreter::pushi() {
     std::cout << "pushi" <<std::endl;
     //TODO: FIXME
-    int i = int(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]);
+    int i = int(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
     //rstack[++sp] = i;
+    rstack.push_back(new Data(i));
+    sp++;
     pc += 5;
 }
 
@@ -98,38 +149,110 @@ void Interpreter::pushf() {
     std::cout << "pushf" <<std::endl;
     //TODO: FIXME
     //byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
-    float f = float(mem[pc+1] << 24  | mem[pc+2] << 16 | mem[pc+2] << 8 | mem[pc+2]);
+    float f = float(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
     //rstack[++sp] = f;
+    rstack.push_back(new Data(f));
+    sp++;
     pc += 5;
 }
 
 void Interpreter::pushvc() {
     std::cout << "pushvc" <<std::endl;
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1]; //TODO: sp++?
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp]->int_data = rstack[fpstack[fpsp] + rstack[sp]->int_data + 1]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp]->float_data = rstack[fpstack[fpsp] + rstack[sp]->float_data + 1]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp]->char_data = rstack[fpstack[fpsp] + rstack[sp]->char_data + 1]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp]->short_data = rstack[fpstack[fpsp] + rstack[sp]->short_data + 1]->short_data;
+            break;
+    }
     pc++;
 }
 
 void Interpreter::pushvs() {
     std::cout << "pushvs" <<std::endl;
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp]->int_data = rstack[fpstack[fpsp] + rstack[sp]->int_data + 1]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp]->float_data = rstack[fpstack[fpsp] + rstack[sp]->float_data + 1]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp]->char_data = rstack[fpstack[fpsp] + rstack[sp]->char_data + 1]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp]->short_data = rstack[fpstack[fpsp] + rstack[sp]->short_data + 1]->short_data;
+            break;
+    }
     pc++;
 }
 
 void Interpreter::pushvi() {
     std::cout << "pushvi" <<std::endl;
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp]->int_data = rstack[fpstack[fpsp] + rstack[sp]->int_data + 1]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp]->float_data = rstack[fpstack[fpsp] + rstack[sp]->float_data + 1]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp]->char_data = rstack[fpstack[fpsp] + rstack[sp]->char_data + 1]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp]->short_data = rstack[fpstack[fpsp] + rstack[sp]->short_data + 1]->short_data;
+            break;
+    }
     pc++;
 }
 
 void Interpreter::pushvf() {
     std::cout << "pushvf" <<std::endl;
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp]->int_data = rstack[fpstack[fpsp] + rstack[sp]->int_data + 1]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp]->float_data = rstack[fpstack[fpsp] + rstack[sp]->float_data + 1]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp]->char_data = rstack[fpstack[fpsp] + rstack[sp]->char_data + 1]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp]->short_data = rstack[fpstack[fpsp] + rstack[sp]->short_data + 1]->short_data;
+            break;
+    }
     pc++;
 }
 
 void Interpreter::popm() {
     std::cout << "popm" <<std::endl;
     //sp -= rstack[sp];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            sp -= rstack[sp]->int_data;
+            break;
+        case FLOAT_TYPE:
+            sp -= rstack[sp]->float_data;
+            break;
+        case CHAR_TYPE:
+            sp -= rstack[sp]->char_data;;
+            break;
+        case SHORT_TYPE:
+            sp -= rstack[sp]->short_data;;
+            break;
+    }
     pc++;
 }
 
