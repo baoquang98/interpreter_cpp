@@ -88,7 +88,7 @@ void Interpreter::cmpgt() {
 
 void Interpreter::jmp() {
     std::cout << "jmp" <<std::endl;
-    //pc = rstack[sp];
+    pc = rstack[sp]->int_data;
     sp = sp-1;
 }
 
@@ -258,7 +258,8 @@ void Interpreter::popm() {
 
 void Interpreter::popv() {
     std::cout << "popv" <<std::endl;
-   // rstack[fpstack[fpsp] + int(rstack[sp]) + 1] = rstack[sp-1];
+   //rstack[fpstack[fpsp] + int(rstack[sp]) + 1] = rstack[sp-1];
+    rstack[fpstack[fpsp] + rstack[sp]->int_data + 1]->int_data = rstack[sp-1]->int_data;
     sp -= 2;
     pc++;
 }
@@ -334,13 +335,41 @@ void Interpreter::swp() {
 void Interpreter::add() {
     std::cout << "add" <<std::endl;
 //    rstack[sp-1] = rstack[sp-1] + rstack[sp];
+switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp - 1]->int_data = rstack[sp - 1]->int_data + rstack[sp]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp - 1]->float_data = rstack[sp - 1]->float_data + rstack[sp]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp - 1]->char_data = rstack[sp - 1]->char_data + rstack[sp]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp - 1]->short_data = rstack[sp - 1]->short_data + rstack[sp]->short_data;
+            break;
+    }
     sp--;
     pc++;
 }
 
 void Interpreter::sub() {
     std::cout << "sub" <<std::endl;
-//    rstack[sp-1] = rstack[sp-1] - rstack[sp];
+//    rstack[sp-1] = rstack[sp-1] - rstack[sp];  
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp - 1]->int_data = rstack[sp - 1]->int_data - rstack[sp]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp - 1]->float_data = rstack[sp - 1]->float_data - rstack[sp]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp - 1]->char_data = rstack[sp - 1]->char_data - rstack[sp]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp - 1]->short_data = rstack[sp - 1]->short_data - rstack[sp]->short_data;
+            break;
+    }
     sp--;
     pc++;
 }
@@ -348,6 +377,20 @@ void Interpreter::sub() {
 void Interpreter::mul() {
     std::cout << "mul" <<std::endl;
 //    rstack[sp-1] = rstack[sp-1] * rstack[sp];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp - 1]->int_data = rstack[sp - 1]->int_data * rstack[sp]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp - 1]->float_data = rstack[sp - 1]->float_data * rstack[sp]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp - 1]->char_data = rstack[sp - 1]->char_data * rstack[sp]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp - 1]->short_data = rstack[sp - 1]->short_data * rstack[sp]->short_data;
+            break;
+    }
     sp--;
     pc++;
 }
@@ -355,32 +398,51 @@ void Interpreter::mul() {
 void Interpreter::div() {
     std::cout << "div" <<std::endl;
  //   rstack[sp-1] = rstack[sp-1] / rstack[sp];
+    
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            rstack[sp - 1]->int_data = rstack[sp - 1]->int_data / rstack[sp]->int_data;
+            break;
+        case FLOAT_TYPE:
+            rstack[sp - 1]->float_data = rstack[sp - 1]->float_data / rstack[sp]->float_data;
+            break;
+        case CHAR_TYPE:
+            rstack[sp - 1]->char_data = rstack[sp - 1]->char_data / rstack[sp]->char_data;
+            break;
+        case SHORT_TYPE:
+            rstack[sp - 1]->short_data = rstack[sp - 1]->short_data / rstack[sp]->short_data;
+            break;
+    }
     sp--;
     pc++;
 }
 
 void Interpreter::printc() {
     std::cout << "printc" <<std::endl;
-//    std::cout <<rstack[sp--] << std::endl;
+    std::cout <<rstack[sp--]->char_data << std::endl;
+    rstack.pop_back();
     pc++;
 }
 
 void Interpreter::prints() {
     std::cout << "prints" <<std::endl;
     pc++;
- //   std::cout <<rstack[sp--]<< std::endl;
+    std::cout <<rstack[sp--]->short_data<< std::endl;
+    rstack.pop_back();
 }
 
 void Interpreter::printi() {
     std::cout << "printi" <<std::endl;
     pc++;
-//    std::cout <<rstack[sp--]<< std::endl;
+    std::cout <<rstack[sp--]->int_data<< std::endl;
+    rstack.pop_back();
 }
 
 void Interpreter::printf() {
     std::cout << "printf" <<std::endl;
     pc++;
-//    std::cout <<rstack[sp--]<< std::endl;
+    std::cout <<rstack[sp--]->float_data<< std::endl;
+    rstack.pop_back();
 }
 
 void Interpreter::halt() {
