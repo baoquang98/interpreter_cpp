@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <vector>
 #include "Data.h"
-#define MAX_RUN 40
+#define MAX_RUN 320
 using namespace std;
 
 class Interpreter {
@@ -27,6 +27,7 @@ private:
     int size;
     bool halt_flag;
     int run_count;
+    bool debug_flag;
 public:
     Interpreter(unsigned char* input, int mem_size);
     ~Interpreter();

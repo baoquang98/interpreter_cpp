@@ -18,11 +18,15 @@ Interpreter::Interpreter(unsigned char* input, int mem_size) {
     size = mem_size;
     halt_flag = false;
     run_count = 0;
+    debug_flag = true;
 }
 
 Interpreter::~Interpreter() {}
 
 void Interpreter::debug() {
+    if (!debug_flag){
+        return;
+    }
     cout << "pc: " << pc <<endl;
     cout << "sp: " << sp << endl;
     cout << "rstack: ";
@@ -52,7 +56,10 @@ void Interpreter::debug() {
     cout << "---------------------------" <<endl;
 }
 void Interpreter::cmpe() {
-    std::cout << "cmpe" <<std::endl;
+    if (debug_flag){
+        std::cout << "cmpe" <<std::endl;
+    }
+    
     switch (rstack[sp]->type) {
         case INT_TYPE:
             rstack[sp-1]->int_data = (rstack[sp-1]->int_data == rstack[sp]->int_data);
@@ -70,10 +77,13 @@ void Interpreter::cmpe() {
     rstack.pop_back();
     sp--;
     pc++;
+    debug();
 }
 
 void Interpreter::cmplt() {
-    std::cout << "cmplt" <<std::endl;
+    if (debug_flag){
+        std::cout << "cmplt" <<std::endl;
+    }
     //rstack[sp-1] = rstack[sp-1] < rstack[sp];
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -95,7 +105,9 @@ void Interpreter::cmplt() {
 }
 
 void Interpreter::cmpgt() {
-    std::cout << "cmpgt" <<std::endl;
+    if (debug_flag){
+        std::cout << "cmpgt" <<std::endl;
+    }
     //rstack[sp-1] = rstack[sp-1] > rstack[sp];
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -117,14 +129,18 @@ void Interpreter::cmpgt() {
 }
 
 void Interpreter::jmp() {
-    std::cout << "jmp" <<std::endl;
+    if (debug_flag){
+        std::cout << "jmp" <<std::endl;
+    }
     pc = rstack[sp]->int_data;
     rstack.pop_back();
     sp = sp-1;
 }
 
 void Interpreter::jmpc() {
-    std::cout << "jmpc" <<std::endl;
+    if (debug_flag){
+        std::cout << "jmpc" <<std::endl;
+    }
     if (rstack[sp-1]->int_data) {
         pc = rstack[sp]->int_data;
     } else {
@@ -137,7 +153,9 @@ void Interpreter::jmpc() {
 }
 
 void Interpreter::call() {
-    std::cout << "call" <<std::endl;
+    if (debug_flag){
+        std::cout << "call" <<std::endl;
+    }
     //fpstack[++fpsp] = sp - rstack[sp]->int_data - 1;
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -162,7 +180,9 @@ void Interpreter::call() {
 }
 
 void Interpreter::ret() {
-    std::cout << "ret" <<std::endl;
+    if (debug_flag){
+        std::cout << "ret" <<std::endl;
+    }
     sp = fpstack[fpsp--];
     //pc = rstack[sp--];
     switch (rstack[sp]->type) {
@@ -179,10 +199,15 @@ void Interpreter::ret() {
             pc = rstack[sp--]->short_data;
             break;
     }
+    rstack.pop_back();
+    fpstack.pop_back();
+    debug();
 }
 
 void Interpreter::pushc() {
-    std::cout << "pushc" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushc" <<std::endl;
+    }
     //rstack[++sp] = mem[pc+1];
     char input = (char) mem[pc+1];
     rstack.push_back(new Data(input));
@@ -191,7 +216,9 @@ void Interpreter::pushc() {
 }
 
 void Interpreter::pushs() {
-    std::cout << "cmpe" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushs" <<std::endl;
+    }
     //TODO: FIXME
     short s = short(mem[pc+2] << 8  | mem[pc+1]);
     //short var[2] = {mem[pc+1], mem[pc+2]};
@@ -204,7 +231,9 @@ void Interpreter::pushs() {
 }
 
 void Interpreter::pushi() {
-    std::cout << "pushi" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushi" <<std::endl;
+    }
     //TODO: FIXME
     int i = int(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
     //rstack[++sp] = i;
@@ -215,7 +244,9 @@ void Interpreter::pushi() {
 }
 
 void Interpreter::pushf() {
-    std::cout << "pushf" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushf" <<std::endl;
+    }
     //TODO: FIXME
     //byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
     float f = float(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
@@ -226,7 +257,9 @@ void Interpreter::pushf() {
 }
 
 void Interpreter::pushvc() {
-    std::cout << "pushvc" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushvc" <<std::endl;
+    }
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1]; //TODO: sp++?
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -246,7 +279,9 @@ void Interpreter::pushvc() {
 }
 
 void Interpreter::pushvs() {
-    std::cout << "pushvs" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushvs" <<std::endl;
+    }
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -266,7 +301,9 @@ void Interpreter::pushvs() {
 }
 
 void Interpreter::pushvi() {
-    std::cout << "pushvi" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushvi" <<std::endl;
+    }
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -287,7 +324,9 @@ void Interpreter::pushvi() {
 }
 
 void Interpreter::pushvf() {
-    std::cout << "pushvf" <<std::endl;
+    if (debug_flag){
+        std::cout << "pushvf" <<std::endl;
+    }
     //rstack[sp] = rstack[fpstack[fpsp] + rstack[sp] + 1];
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -307,7 +346,9 @@ void Interpreter::pushvf() {
 }
 
 void Interpreter::popm() {
-    std::cout << "popm" <<std::endl;
+    if (debug_flag){
+        std::cout << "popm" <<std::endl;
+    }
     //sp -= rstack[sp];
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -339,7 +380,9 @@ void Interpreter::popm() {
 }
 
 void Interpreter::popv() {
-    std::cout << "popv" <<std::endl;
+    if (debug_flag){
+        std::cout << "popv" <<std::endl;
+    }
    //rstack[fpstack[fpsp] + int(rstack[sp]) + 1] = rstack[sp-1];
     rstack[fpstack[fpsp] + rstack[sp]->int_data + 1]->int_data = rstack[sp-1]->int_data;
     sp -= 2;
@@ -347,33 +390,47 @@ void Interpreter::popv() {
     rstack.pop_back();
     pc++;
     debug();
-    //TODO: What the hell is this??
 }
 
 void Interpreter::popa() {
-    std::cout << "popa" <<std::endl;
+    if (debug_flag){
+        std::cout << "popa" <<std::endl;
+    }
     // Still need work, this assuming the top of rstack is an int
+
     for(int i = 1; i < rstack[sp]->int_data; i++) {
         rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp]->int_data + (i - 1)];
     }
+    for (int i = fpstack[fpsp]; i <= rstack.size(); i ++) {
+        rstack.pop_back();
+    }
     sp = fpstack[fpsp]+rstack[sp]->int_data;
     pc++;
+    debug();
 }
 
 void Interpreter::peekc() {
-    std::cout << "cmpe" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "peekc" <<std::endl;
+    }
  //   rstack[fpstack[fpsp] + rstack[sp-1]+1] = rstack[fpstack[fpsp]+rstack[sp]+1];
     pc++;
 }
 
 void Interpreter::peeks() {
-    std::cout << "peeks" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "peeks" <<std::endl;
+    }
   //  rstack[fpstack[fpsp] + rstack[sp-1]+1] = rstack[fpstack[fpsp]+rstack[sp]+1];
     pc++;
 }
 
 void Interpreter::peeki() {
-    std::cout << "peeki" <<std::endl;
+    if (debug_flag){
+        std::cout << "peeki" <<std::endl;
+    }
     pc++;
     rstack[fpstack[fpsp] + rstack[sp-1]->int_data+1]->int_data = rstack[fpstack[fpsp]+rstack[sp]->int_data+1]->int_data;
     rstack.pop_back();
@@ -383,37 +440,55 @@ void Interpreter::peeki() {
 }
 
 void Interpreter::peekf() {
-    std::cout << "peekf" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "peekf" <<std::endl;
+    }
     pc++;
   //  rstack[fpstack[fpsp] + rstack[sp-1]+1] = rstack[fpstack[fpsp]+rstack[sp]+1];
 }
 
 void Interpreter::pokec() {
-    std::cout << "pokec" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "pokec" <<std::endl;
+    }
     pc++;
   //  rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
 void Interpreter::pokes() {
-    std::cout << "pokes" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "pokes" <<std::endl;
+    }
     pc++;
    // rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
 void Interpreter::pokei() {
-    std::cout << "pokei" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "pokei" <<std::endl;
+    }
     pc++;
   //  rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
 void Interpreter::pokef() {
-    std::cout << "pokef" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "pokef" <<std::endl;
+    }
     pc++;
   //  rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
 void Interpreter::swp() {
-    std::cout << "swp" <<std::endl;
+    //TODO: Implement this
+    if (debug_flag){
+        std::cout << "swp" <<std::endl;
+    }
     pc++;
     /*tmp = rstack[sp-1];
     rstack[sp-1] = rstack[sp];
@@ -421,9 +496,11 @@ void Interpreter::swp() {
 }
 
 void Interpreter::add() {
-    std::cout << "add" <<std::endl;
+    if (debug_flag){
+        std::cout << "add" <<std::endl;
+    }
 //    rstack[sp-1] = rstack[sp-1] + rstack[sp];
-switch (rstack[sp]->type) {
+    switch (rstack[sp]->type) {
         case INT_TYPE:
             rstack[sp - 1]->int_data = rstack[sp - 1]->int_data + rstack[sp]->int_data;
             break;
@@ -443,7 +520,9 @@ switch (rstack[sp]->type) {
 }
 
 void Interpreter::sub() {
-    std::cout << "sub" <<std::endl;
+    if (debug_flag){
+        std::cout << "sub" <<std::endl;
+    }
 //    rstack[sp-1] = rstack[sp-1] - rstack[sp];  
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -465,7 +544,9 @@ void Interpreter::sub() {
 }
 
 void Interpreter::mul() {
-    std::cout << "mul" <<std::endl;
+    if (debug_flag){
+        std::cout << "mul" <<std::endl;
+    }
 //    rstack[sp-1] = rstack[sp-1] * rstack[sp];
     switch (rstack[sp]->type) {
         case INT_TYPE:
@@ -487,9 +568,10 @@ void Interpreter::mul() {
 }
 
 void Interpreter::div() {
-    std::cout << "div" <<std::endl;
+    if (debug_flag){
+        std::cout << "div" <<std::endl;
+    }
  //   rstack[sp-1] = rstack[sp-1] / rstack[sp];
-    
     switch (rstack[sp]->type) {
         case INT_TYPE:
             rstack[sp - 1]->int_data = rstack[sp - 1]->int_data / rstack[sp]->int_data;
@@ -510,49 +592,78 @@ void Interpreter::div() {
 }
 
 void Interpreter::printc() {
-    std::cout << "printc" <<std::endl;
+    if (debug_flag){
+        std::cout << "printc" <<std::endl;
+    }
     std::cout <<rstack[sp--]->char_data << std::endl;
     rstack.pop_back();
     pc++;
 }
 
 void Interpreter::prints() {
-    std::cout << "prints" <<std::endl;
+    if (debug_flag){
+        std::cout << "prints" <<std::endl;
+    }
     pc++;
     std::cout <<rstack[sp--]->short_data<< std::endl;
     rstack.pop_back();
 }
 
 void Interpreter::printi() {
-    std::cout << "printi" <<std::endl;
+    if (debug_flag){
+        std::cout << "printi" <<std::endl;
+    }
     pc++;
     std::cout <<rstack[sp--]->int_data<< std::endl;
     rstack.pop_back();
 }
 
 void Interpreter::printf() {
-    std::cout << "printf" <<std::endl;
+    if (debug_flag){
+        std::cout << "printf" <<std::endl;
+    }
     pc++;
     std::cout <<rstack[sp--]->float_data<< std::endl;
     rstack.pop_back();
 }
 
 void Interpreter::halt() {
-    /*std::cout << "halt" <<std::endl;
-    //TODO:Terminate,
-    //TODO:fix up these
-    std::cout <<pc<< std::endl;
-    std::cout <<sp<< std::endl;
-    //TODO: Print out rstack
-    for (int i = 0; i < rstack.size(); i++) {
-        std::cout << rstack[i] << std::endl;
+    if (debug_flag){
+        std::cout << "halt" <<std::endl;
     }
     
-    std::cout <<fpsp<< std::endl;
-    for (int i = 0; i < rstack.size(); i++) {
-        std::cout << rstack[i] << std::endl;
+    cout << "pc: " << pc <<endl;
+    cout << "sp: " << sp << endl;
+    cout << "rstack: ";
+    if (rstack.size() == 0) {
+        cout << "empty";
     }
-    std::cout <<"Last instructions?"<< std::endl; */
+    for (int i = 0; i < rstack.size(); i++) {
+        switch(rstack[i]->type){
+        case INT_TYPE:
+            cout << rstack[i]->int_data << " ";
+            break;
+        case FLOAT_TYPE:
+            cout << rstack[i]->float_data << " ";
+            break;
+        case CHAR_TYPE:
+            cout << rstack[i]->char_data << " ";
+            break;
+        case SHORT_TYPE:
+            cout << rstack[i]->short_data << " ";
+            break;
+        }
+    }
+    cout <<endl;
+    cout << "fpsp: " << fpsp << endl;
+    cout << "fpstack: ";
+    for (int i = 0; i < fpstack.size(); i++) {
+        cout << fpstack[i] << " ";
+    }
+    if (fpstack.size() == 0) {
+        cout << "empty" << endl;
+    }
+    cout <<endl;
     halt_flag = true;
 }
 
