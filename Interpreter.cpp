@@ -632,7 +632,8 @@ void Interpreter::halt() {
         std::cout << "halt" <<std::endl;
     }
     
-    cout << "pc: " << pc <<endl;
+    cout << endl << "Compile values:" << endl;
+    cout << "PC: " << pc <<endl;
     cout << "sp: " << sp << endl;
     cout << "rstack: ";
     if (rstack.size() == 0) {
