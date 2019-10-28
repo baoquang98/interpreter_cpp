@@ -17,10 +17,40 @@ Interpreter::Interpreter(unsigned char* input, int mem_size) {
     pc = 0;
     size = mem_size;
     halt_flag = false;
+    run_count = 0;
 }
 
 Interpreter::~Interpreter() {}
 
+void Interpreter::debug() {
+    cout << "pc: " << pc <<endl;
+    cout << "sp: " << sp << endl;
+    cout << "rstack: ";
+    for (int i = 0; i < rstack.size(); i++) {
+        switch(rstack[i]->type){
+        case INT_TYPE:
+            cout << rstack[i]->int_data << " ";
+            break;
+        case FLOAT_TYPE:
+            cout << rstack[i]->float_data << " ";
+            break;
+        case CHAR_TYPE:
+            cout << rstack[i]->char_data << " ";
+            break;
+        case SHORT_TYPE:
+            cout << rstack[i]->short_data << " ";
+            break;
+        }
+    }
+    cout <<endl;
+    cout << "fpsp: " << fpsp << endl;
+    cout << "fpstack: ";
+    for (int i = 0; i < fpstack.size(); i++) {
+        cout << fpstack[i] << " ";
+    }
+    cout <<endl;
+    cout << "---------------------------" <<endl;
+}
 void Interpreter::cmpe() {
     std::cout << "cmpe" <<std::endl;
     switch (rstack[sp]->type) {
@@ -89,28 +119,66 @@ void Interpreter::cmpgt() {
 void Interpreter::jmp() {
     std::cout << "jmp" <<std::endl;
     pc = rstack[sp]->int_data;
+    rstack.pop_back();
     sp = sp-1;
 }
 
 void Interpreter::jmpc() {
     std::cout << "jmpc" <<std::endl;
-    //if (rstack[sp-1]) {
-    //    pc = rstack[sp];
-    //}
+    if (rstack[sp-1]->int_data) {
+        pc = rstack[sp]->int_data;
+    } else {
+        pc++;
+    }//THis might need modification, as we're implying the top 2 element of the stack are 2 ints
+    rstack.pop_back();
+    rstack.pop_back();
     sp = sp-2;
+    debug();
 }
 
 void Interpreter::call() {
     std::cout << "call" <<std::endl;
-    //fpstack[++fpsp] = sp - rstack[sp];
+    //fpstack[++fpsp] = sp - rstack[sp]->int_data - 1;
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            fpstack.push_back(sp - rstack[sp]->int_data - 1);
+            break;
+        case FLOAT_TYPE:
+            fpstack.push_back(int(sp - rstack[sp]->float_data - 1));
+            break;
+        case CHAR_TYPE:
+            fpstack.push_back(sp - rstack[sp]->char_data - 1);
+            break;
+        case SHORT_TYPE:
+            fpstack.push_back(sp - rstack[sp]->short_data - 1);
+            break;
+    }
     sp--;
-    //pc = rstack[sp--];
+    fpsp++;
+    rstack.pop_back();
+    pc = rstack[sp--]->int_data;
+    rstack.pop_back();
+    debug();
 }
 
 void Interpreter::ret() {
     std::cout << "ret" <<std::endl;
-    //sp = fpstack[fpsp--];
-    //pc = rstack[sp];
+    sp = fpstack[fpsp--];
+    //pc = rstack[sp--];
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            pc = rstack[sp--]->int_data;
+            break;
+        case FLOAT_TYPE:
+            pc = int(rstack[sp--]->float_data);
+            break;
+        case CHAR_TYPE:
+            pc = rstack[sp--]->char_data;
+            break;
+        case SHORT_TYPE:
+            pc = rstack[sp--]->short_data;
+            break;
+    }
 }
 
 void Interpreter::pushc() {
@@ -143,6 +211,7 @@ void Interpreter::pushi() {
     rstack.push_back(new Data(i));
     sp++;
     pc += 5;
+    debug();
 }
 
 void Interpreter::pushf() {
@@ -214,6 +283,7 @@ void Interpreter::pushvi() {
             break;
     }
     pc++;
+    debug();
 }
 
 void Interpreter::pushvf() {
@@ -242,15 +312,27 @@ void Interpreter::popm() {
     switch (rstack[sp]->type) {
         case INT_TYPE:
             sp -= rstack[sp]->int_data;
+            for (int i = 0; i < rstack[sp]->int_data; i++) {
+                rstack.pop_back();
+            }
             break;
         case FLOAT_TYPE:
-            sp -= rstack[sp]->float_data;
+            sp -= int(rstack[sp]->float_data);
+            for (int i = 0; i < int(rstack[sp]->float_data); i++) {
+                rstack.pop_back();
+            }
             break;
         case CHAR_TYPE:
             sp -= rstack[sp]->char_data;;
+            for (int i = 0; i < rstack[sp]->char_data; i++) {
+                rstack.pop_back();
+            }
             break;
         case SHORT_TYPE:
-            sp -= rstack[sp]->short_data;;
+            sp -= rstack[sp]->short_data;
+            for (int i = 0; i < rstack[sp]->short_data; i++) {
+                rstack.pop_back();
+            }
             break;
     }
     pc++;
@@ -261,18 +343,20 @@ void Interpreter::popv() {
    //rstack[fpstack[fpsp] + int(rstack[sp]) + 1] = rstack[sp-1];
     rstack[fpstack[fpsp] + rstack[sp]->int_data + 1]->int_data = rstack[sp-1]->int_data;
     sp -= 2;
+    rstack.pop_back();
+    rstack.pop_back();
     pc++;
+    debug();
+    //TODO: What the hell is this??
 }
 
 void Interpreter::popa() {
     std::cout << "popa" <<std::endl;
-    // WHAT THE HELL IS THIS FUNCTION??
-    /*int i = 0;
-    for(i = 1; i < TODO; i++) {
-        rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp] + (i - 1)];
+    // Still need work, this assuming the top of rstack is an int
+    for(int i = 1; i < rstack[sp]->int_data; i++) {
+        rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp]->int_data + (i - 1)];
     }
-    rstack[fpstack[fpsp] + rstack[sp]] = rstack[sp-1];
-    sp = fpstack[fpsp]+rstack[sp];*/
+    sp = fpstack[fpsp]+rstack[sp]->int_data;
     pc++;
 }
 
@@ -291,7 +375,11 @@ void Interpreter::peeks() {
 void Interpreter::peeki() {
     std::cout << "peeki" <<std::endl;
     pc++;
-  //  rstack[fpstack[fpsp] + rstack[sp-1]+1] = rstack[fpstack[fpsp]+rstack[sp]+1];
+    rstack[fpstack[fpsp] + rstack[sp-1]->int_data+1]->int_data = rstack[fpstack[fpsp]+rstack[sp]->int_data+1]->int_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
 }
 
 void Interpreter::peekf() {
@@ -349,6 +437,7 @@ switch (rstack[sp]->type) {
             rstack[sp - 1]->short_data = rstack[sp - 1]->short_data + rstack[sp]->short_data;
             break;
     }
+    rstack.pop_back();
     sp--;
     pc++;
 }
@@ -370,6 +459,7 @@ void Interpreter::sub() {
             rstack[sp - 1]->short_data = rstack[sp - 1]->short_data - rstack[sp]->short_data;
             break;
     }
+    rstack.pop_back();
     sp--;
     pc++;
 }
@@ -391,6 +481,7 @@ void Interpreter::mul() {
             rstack[sp - 1]->short_data = rstack[sp - 1]->short_data * rstack[sp]->short_data;
             break;
     }
+    rstack.pop_back();
     sp--;
     pc++;
 }
@@ -413,6 +504,7 @@ void Interpreter::div() {
             rstack[sp - 1]->short_data = rstack[sp - 1]->short_data / rstack[sp]->short_data;
             break;
     }
+    rstack.pop_back();
     sp--;
     pc++;
 }
@@ -587,7 +679,7 @@ void Interpreter::run_demo() {
     }
 }
 void Interpreter::run() {
-    while(!halt_flag) {
+    while(!halt_flag && run_count != MAX_RUN) {
         switch(mem[pc]) {
             case 132://(132 || 10000100)://cmpe
                 cmpe();
@@ -673,7 +765,7 @@ void Interpreter::run() {
                 swp();
                 break;
         //Arithmetic Byte Codes
-            case 110://(100 || 01100100): //add
+            case 100://(100 || 01100100): //add
                 add();
                 break;
             case 104://(104 || 01101000): //sub
@@ -702,10 +794,11 @@ void Interpreter::run() {
                 halt();
                 break;
             default:
-                cout <<"Unknown inst, Hex: " << hex << (int) mem[pc] << dec << endl;
+                cout <<"Unknown inst: " << (int) mem[pc] << endl;
                 halt_flag = true;
-                cout <<"Kill execution" << endl;
+                cout <<"Plz die a graceful death" << endl;
                 return;
         }
+        run_count++;
     }
 }

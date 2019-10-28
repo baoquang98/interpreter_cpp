@@ -17,7 +17,7 @@ int main(int argc, char ** argv) {
             cout << "Dec: " <<(int) memblock[i] << ", Hex: " << hex << (int) memblock[i] << dec << endl;
         }*/
         Interpreter * inter = new Interpreter(memblock, size); // temp solution for c++ being picky with array size
-        inter->run_demo();
+        inter->run();
         delete[] memblock;
     } else cout << "Unable to open file";
 
