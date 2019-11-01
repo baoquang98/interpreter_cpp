@@ -10,7 +10,7 @@
 #include <array>
 #include <iostream>
 
-Interpreter::Interpreter(unsigned char* input, int mem_size) {
+Interpreter::Interpreter(unsigned char* input, int mem_size, bool flag) {
     mem = input;
     sp = -1;
     fpsp = -1;
@@ -18,7 +18,7 @@ Interpreter::Interpreter(unsigned char* input, int mem_size) {
     size = mem_size;
     halt_flag = false;
     run_count = 0;
-    debug_flag = true;
+    debug_flag = flag;
 }
 
 Interpreter::~Interpreter() {}
@@ -39,7 +39,7 @@ void Interpreter::debug() {
             cout << rstack[i]->float_data << " ";
             break;
         case CHAR_TYPE:
-            cout << rstack[i]->char_data << " ";
+            cout <<(int) rstack[i]->char_data << " ";
             break;
         case SHORT_TYPE:
             cout << rstack[i]->short_data << " ";
@@ -209,10 +209,14 @@ void Interpreter::pushc() {
         std::cout << "pushc" <<std::endl;
     }
     //rstack[++sp] = mem[pc+1];
-    char input = (char) mem[pc+1];
-    rstack.push_back(new Data(input));
+    //char c = (char) mem[pc+1];
+    unsigned char var[2] = {mem[pc+1]};
+    char c;
+    memcpy(&c, &var, sizeof(c));
+    rstack.push_back(new Data(c));
     sp++;
     pc += 2;
+    debug();
 }
 
 void Interpreter::pushs() {
@@ -220,11 +224,12 @@ void Interpreter::pushs() {
         std::cout << "pushs" <<std::endl;
     }
     //TODO: FIXME
-    short s = short(mem[pc+2] << 8  | mem[pc+1]);
-    //short var[2] = {mem[pc+1], mem[pc+2]};
-    //short s;
-    //memcpy(&s, &var, sizeof(s));
+    //short s = short(mem[pc+2] << 8  | mem[pc+1]);
     //rstack[++sp] = s;
+    unsigned char var[2] = {mem[pc+1], mem[pc+2]};
+    short s;
+    memcpy(&s, &var, sizeof(s));
+
     rstack.push_back(new Data(s));
     sp++;
     pc += 3;
@@ -235,8 +240,12 @@ void Interpreter::pushi() {
         std::cout << "pushi" <<std::endl;
     }
     //TODO: FIXME
-    int i = int(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
+    //int i = int(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
     //rstack[++sp] = i;
+    unsigned char var[4] = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
+    int i;
+    memcpy(&i, &var, sizeof(i));
+    
     rstack.push_back(new Data(i));
     sp++;
     pc += 5;
@@ -249,8 +258,11 @@ void Interpreter::pushf() {
     }
     //TODO: FIXME
     //byte[] bytes = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
-    float f = float(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
+    //float f = float(mem[pc+4] << 24  | mem[pc+3] << 16 | mem[pc+2] << 8 | mem[pc+1]);
     //rstack[++sp] = f;
+    unsigned char var[4] = {mem[pc+1], mem[pc+2], mem[pc+3], mem[pc+4]};
+    float f;
+    memcpy(&f, &var, sizeof(f));
     rstack.push_back(new Data(f));
     sp++;
     pc += 5;
@@ -352,31 +364,32 @@ void Interpreter::popm() {
     //sp -= rstack[sp];
     switch (rstack[sp]->type) {
         case INT_TYPE:
-            sp -= rstack[sp]->int_data;
-            for (int i = 0; i < rstack[sp]->int_data; i++) {
+            for (int i = 0; i <= rstack[sp]->int_data; i++) {
                 rstack.pop_back();
             }
+            sp -= rstack[sp]->int_data + 1;
             break;
         case FLOAT_TYPE:
-            sp -= int(rstack[sp]->float_data);
-            for (int i = 0; i < int(rstack[sp]->float_data); i++) {
+            for (int i = 0; i <= int(rstack[sp]->float_data); i++) {
                 rstack.pop_back();
             }
+            sp -= int(rstack[sp]->float_data) + 1;
             break;
         case CHAR_TYPE:
-            sp -= rstack[sp]->char_data;;
-            for (int i = 0; i < rstack[sp]->char_data; i++) {
+            for (int i = 0; i <= rstack[sp]->char_data; i++) {
                 rstack.pop_back();
             }
+            sp -= rstack[sp]->char_data + 1;
             break;
         case SHORT_TYPE:
-            sp -= rstack[sp]->short_data;
-            for (int i = 0; i < rstack[sp]->short_data; i++) {
+            for (int i = 0; i <= rstack[sp]->short_data; i++) {
                 rstack.pop_back();
             }
+            sp -= rstack[sp]->short_data + 1;
             break;
     }
     pc++;
+    debug();
 }
 
 void Interpreter::popv() {
@@ -401,7 +414,8 @@ void Interpreter::popa() {
     for(int i = 1; i < rstack[sp]->int_data; i++) {
         rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp]->int_data + (i - 1)];
     }
-    for (int i = fpstack[fpsp]; i <= rstack.size(); i ++) {
+    int curr_size = rstack.size();
+    for (int i = fpstack[fpsp] + 1; i < curr_size; i ++) {
         rstack.pop_back();
     }
     sp = fpstack[fpsp]+rstack[sp]->int_data;
@@ -595,7 +609,7 @@ void Interpreter::printc() {
     if (debug_flag){
         std::cout << "printc" <<std::endl;
     }
-    std::cout <<rstack[sp--]->char_data << std::endl;
+    std::cout <<(int) rstack[sp--]->char_data << std::endl;
     rstack.pop_back();
     pc++;
 }

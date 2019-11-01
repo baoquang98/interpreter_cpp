@@ -29,7 +29,7 @@ private:
     int run_count;
     bool debug_flag;
 public:
-    Interpreter(unsigned char* input, int mem_size);
+    Interpreter(unsigned char* input, int mem_size, bool flag);
     ~Interpreter();
     void run(); //Hopefully this will be our end run method
     void run_demo(); //This is to read through and check the memory
