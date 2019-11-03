@@ -411,13 +411,40 @@ void Interpreter::popa() {
     }
     // Still need work, this assuming the top of rstack is an int
 
-    for(int i = 1; i < rstack[sp]->int_data; i++) {
-        rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp]->int_data + (i - 1)];
+
+
+    int to_save = 0;
+    switch (rstack[sp]->type) {
+        case INT_TYPE:
+            for(int i = 1; i < rstack[sp]->int_data; i++) {
+                rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp]->int_data + (i - 1)];
+            }
+            to_save = rstack[sp]->int_data;
+            break;
+        case FLOAT_TYPE:
+            for(int i = 1; i < rstack[sp]->float_data; i++) {
+                rstack[fpstack[fpsp] + i] = rstack[sp - int(rstack[sp]->float_data) + (i - 1)];
+            }
+            to_save = int(rstack[sp]->float_data);
+            break;
+        case CHAR_TYPE:
+            for(int i = 1; i < rstack[sp]->char_data; i++) {
+                rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp]->char_data + (i - 1)];
+            }
+            to_save = rstack[sp]->char_data;
+            break;
+        case SHORT_TYPE:
+            for(int i = 1; i < rstack[sp]->short_data; i++) {
+                rstack[fpstack[fpsp] + i] = rstack[sp - rstack[sp]->short_data + (i - 1)];
+            }
+            to_save = rstack[sp]->short_data;
+            break;
     }
-    int curr_size = rstack.size();
-    for (int i = fpstack[fpsp] + 1; i < curr_size; i ++) {
-        rstack.pop_back();
-    }
+    rstack.pop_back();
+    sp--;
+
+    rstack.erase(rstack.begin() + fpstack[fpsp] + 1, rstack.begin() + rstack.size() - to_save);
+
     sp = fpstack[fpsp]+rstack[sp]->int_data;
     pc++;
     debug();
@@ -430,6 +457,11 @@ void Interpreter::peekc() {
     }
  //   rstack[fpstack[fpsp] + rstack[sp-1]+1] = rstack[fpstack[fpsp]+rstack[sp]+1];
     pc++;
+    rstack[fpstack[fpsp] + rstack[sp-1]->int_data+1]->char_data = rstack[fpstack[fpsp]+rstack[sp]->int_data+1]->char_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
 }
 
 void Interpreter::peeks() {
@@ -439,6 +471,11 @@ void Interpreter::peeks() {
     }
   //  rstack[fpstack[fpsp] + rstack[sp-1]+1] = rstack[fpstack[fpsp]+rstack[sp]+1];
     pc++;
+    rstack[fpstack[fpsp] + rstack[sp-1]->int_data+1]->short_data = rstack[fpstack[fpsp]+rstack[sp]->int_data+1]->short_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
 }
 
 void Interpreter::peeki() {
@@ -459,6 +496,11 @@ void Interpreter::peekf() {
         std::cout << "peekf" <<std::endl;
     }
     pc++;
+    rstack[fpstack[fpsp] + rstack[sp-1]->int_data+1]->float_data = rstack[fpstack[fpsp]+rstack[sp]->int_data+1]->float_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
   //  rstack[fpstack[fpsp] + rstack[sp-1]+1] = rstack[fpstack[fpsp]+rstack[sp]+1];
 }
 
@@ -468,6 +510,11 @@ void Interpreter::pokec() {
         std::cout << "pokec" <<std::endl;
     }
     pc++;
+    rstack[fpstack[fpsp] + rstack[sp]->int_data+1]->char_data = rstack[fpstack[fpsp]+rstack[sp - 1]->int_data+1]->char_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
   //  rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
@@ -477,6 +524,11 @@ void Interpreter::pokes() {
         std::cout << "pokes" <<std::endl;
     }
     pc++;
+    rstack[fpstack[fpsp] + rstack[sp]->int_data+1]->short_data = rstack[fpstack[fpsp]+rstack[sp - 1]->int_data+1]->short_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
    // rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
@@ -486,6 +538,11 @@ void Interpreter::pokei() {
         std::cout << "pokei" <<std::endl;
     }
     pc++;
+    rstack[fpstack[fpsp] + rstack[sp]->int_data+1]->int_data = rstack[fpstack[fpsp]+rstack[sp - 1]->int_data+1]->int_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
   //  rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
@@ -495,18 +552,22 @@ void Interpreter::pokef() {
         std::cout << "pokef" <<std::endl;
     }
     pc++;
+    rstack[fpstack[fpsp] + rstack[sp]->int_data+1]->float_data = rstack[fpstack[fpsp]+rstack[sp - 1]->int_data+1]->float_data;
+    rstack.pop_back();
+    rstack.pop_back();
+    sp -= 2;
+    debug();
   //  rstack[fpstack[fpsp] + rstack[sp]+1] = rstack[fpstack[fpsp] + rstack[sp-1]+1];
 }
 
 void Interpreter::swp() {
-    //TODO: Implement this
     if (debug_flag){
         std::cout << "swp" <<std::endl;
     }
     pc++;
-    /*tmp = rstack[sp-1];
+    Data * tmp = rstack[sp-1];
     rstack[sp-1] = rstack[sp];
-    rstack[sp] = tmp;*/
+    rstack[sp] = tmp;
 }
 
 void Interpreter::add() {
