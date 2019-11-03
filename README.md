@@ -3,7 +3,7 @@
 ## Usage: 
 ### To build:
 ```
-g++ -g -o main Interpreter.cpp main.cpp 
+g++ -g -o main Interpreter.cpp Data.cpp main.cpp 
 ```
 (Maybe make a Makefile later, idk)
 ### To run:
