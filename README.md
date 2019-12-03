@@ -12,3 +12,5 @@ g++ -g -o main Interpreter.cpp Data.cpp main.cpp
 ```
 - "-d" : debug mode: Exection with traces
 - "-n" : normal mode: Exection without traces
+### Caveat:
+There's a MAX_RUN constant that act as a fail safe mechanisim to avoid infinite loop, increase this value in interpreter.h and recompile to change this value

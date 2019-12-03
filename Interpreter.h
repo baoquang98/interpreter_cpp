@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <vector>
 #include "Data.h"
-#define MAX_RUN 320
+#define MAX_RUN 32000000
 using namespace std;
 
 class Interpreter {

@@ -987,5 +987,8 @@ void Interpreter::run() {
                 return;
         }
         run_count++;
+        if (run_count == MAX_RUN) {
+            cout << "Max run reached" << endl;
+        }
     }
 }
